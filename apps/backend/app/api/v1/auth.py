@@ -7,28 +7,15 @@ from app.core.config import settings
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.db.deps import get_session
 from app.models.user import User
+from app.schemas.auth import UserLogin, UserRegister, Token, RegisterResponse
 
 router = APIRouter()
 security = HTTPBearer()
 
-class UserLogin:
-    def __init__(self, email: str, password: str):
-        self.email = email
-        self.password = password
-
-class UserRegister:
-    def __init__(self, email: str, password: str, full_name: str = None):
-        self.email = email
-        self.password = password
-        self.full_name = full_name
-
-@router.post("/login")
-def login(user_data: dict, session: Session = Depends(get_session)):
-    email = user_data.get("email")
-    password = user_data.get("password")
-    
-    user = session.exec(select(User).where(User.email == email)).first()
-    if not user or not verify_password(password, user.hashed_password):
+@router.post("/login", response_model=Token)
+def login(user_data: UserLogin, session: Session = Depends(get_session)):
+    user = session.exec(select(User).where(User.email == user_data.email)).first()
+    if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -39,16 +26,12 @@ def login(user_data: dict, session: Session = Depends(get_session)):
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")
 
-@router.post("/register")
-def register(user_data: dict, session: Session = Depends(get_session)):
-    email = user_data.get("email")
-    password = user_data.get("password")
-    full_name = user_data.get("full_name")
-    
+@router.post("/register", response_model=RegisterResponse)
+def register(user_data: UserRegister, session: Session = Depends(get_session)):
     # Verificar si el usuario ya existe
-    existing_user = session.exec(select(User).where(User.email == email)).first()
+    existing_user = session.exec(select(User).where(User.email == user_data.email)).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -56,11 +39,11 @@ def register(user_data: dict, session: Session = Depends(get_session)):
         )
     
     # Crear nuevo usuario
-    hashed_password = get_password_hash(password)
+    hashed_password = get_password_hash(user_data.password)
     user = User(
-        email=email,
+        email=user_data.email,
         hashed_password=hashed_password,
-        full_name=full_name,
+        full_name=user_data.full_name or "",
         is_active=True
     )
     
@@ -68,4 +51,4 @@ def register(user_data: dict, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(user)
     
-    return {"message": "User created successfully", "email": user.email}
+    return RegisterResponse(message="User created successfully", user_id=user.id)
