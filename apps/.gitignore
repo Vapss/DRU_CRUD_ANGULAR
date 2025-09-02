@@ -1,0 +1,73 @@
+# === Entornos y secretos ===
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Archivos de entorno (no subir secretos)
+.env
+.env.*
+*.env
+!.env.example
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+*.egg-info/
+dist/
+build/
+
+# Herramientas/analizadores Python
+.mypy_cache/
+.pytest_cache/
+.cache/
+.ruff_cache/
+.pytype/
+.tox/
+coverage.xml
+htmlcov/
+.coverage
+.coverage.*
+
+# Bases de datos locales
+*.sqlite3
+*.sqlite
+*.db
+*.db-journal
+
+# Jupyter
+.ipynb_checkpoints/
+
+# === Node/Angular ===
+node_modules/
+dist/
+coverage/
+.angular/
+.angular/cache/
+.npm/
+.eslintcache
+.parcel-cache/
+
+# === Docker/CI ===
+*.pid
+*.pid.lock
+
+# === IDE/Editor ===
+.vscode/
+.idea/
+*.code-workspace
+
+# === Sistema/Temporales ===
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
