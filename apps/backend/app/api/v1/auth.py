@@ -51,4 +51,6 @@ def register(user_data: UserRegister, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(user)
     
-    return RegisterResponse(message="User created successfully", user_id=user.id)
+    return RegisterResponse(
+        message="User created successfully", email=user.email, user_id=user.id
+    )
