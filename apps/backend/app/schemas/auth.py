@@ -60,4 +60,5 @@ class UserResponse(SQLModel):
 class RegisterResponse(SQLModel):
     """Schema para la respuesta del registro."""
     message: str
+    user_id: int
     email: str
