@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    appConfig,
+    ...appConfig.providers,
     provideRouter(APP_ROUTES),
   ],
 });
