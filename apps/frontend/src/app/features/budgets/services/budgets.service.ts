@@ -51,7 +51,7 @@ export class BudgetsService {
   private normalizeTransaction(dto: TransactionDto): Transaction {
     return {
       ...dto,
-      amount: typeof dto.amount === 'number' ? dto.amount : Number(dto.amount ?? 0),
+      amount: this.toNumber(dto.amount),
     };
   }
 

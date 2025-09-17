@@ -3,9 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { APP_CONFIG, AppConfig } from '../config/app-config.token';
 
+export type HeaderValue = string | number | boolean;
+
 export interface HttpRequestOptions {
   params?: Record<string, string | number | boolean>;
-  headers?: HttpHeaders | Record<string, string>;
+  headers?: HttpHeaders | Record<string, HeaderValue>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -67,9 +69,31 @@ export class HttpService {
     if (headers instanceof HttpHeaders) {
       mapped.headers = headers;
     } else if (headers) {
-      mapped.headers = new HttpHeaders(headers);
+      const normalized = this.normalizeHeaders(headers);
+      if (Object.keys(normalized).length) {
+        mapped.headers = new HttpHeaders(normalized);
+      }
     }
 
     return mapped;
+  }
+
+  private normalizeHeaders(headers: Record<string, HeaderValue>): Record<string, string> {
+    const normalized: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(headers)) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      const serialized = typeof value === 'string' ? value : String(value);
+      if (serialized.trim() === '') {
+        continue;
+      }
+
+      normalized[key] = serialized;
+    }
+
+    return normalized;
   }
 }
